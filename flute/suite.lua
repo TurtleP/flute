@@ -40,6 +40,8 @@ function suite:new(name, tests_or_path, exclude)
 
     self.async = async()
 
+    self.time = love.timer.getTime()
+
     functional.foreach(self.items, function(item, _)
         self.async:call(function()
             self.log:echo("Executing Test '%s':", item:name())
@@ -57,7 +59,7 @@ end
 function suite:update()
     local running = self.async:update()
     if not running and not self._finish then
-        print_footer(self.log, self.items)
+        print_footer(self, self.log, self.items)
         self._finish = true
     end
 end
@@ -75,7 +77,7 @@ function async_fail(log, item)
 end
 
 function print_header(log, count)
-    local message = ("# Executing a total of $tests test(s) #"):apply_template({ tests = count })
+    local message = ("# Executing a total of $tests test(s)"):apply_template({ tests = count })
     local divider = string.rep("-", #message)
 
     log:echo(divider)
@@ -83,7 +85,7 @@ function print_header(log, count)
     log:echo(divider)
 end
 
-function print_footer(log, items)
+function print_footer(self, log, items)
     local passing = 0
     functional.foreach(items, function(item, _)
         if item:status() then
@@ -92,7 +94,7 @@ function print_footer(log, items)
     end)
 
 
-    local message = ("# $fail failed. $pass passed. $percent%% success rate. #"):apply_template({
+    local message = ("# $fail failed. $pass passed. $percent%% success rate."):apply_template({
         fail = #items - passing, pass = passing,
         percent = (passing / #items) * 100
     })
@@ -101,6 +103,7 @@ function print_footer(log, items)
 
     log:echo(divider)
     log:echo(message)
+    log:echo("# Total time: " .. (love.timer.getTime() - self.time) .. "s")
     log:echo(divider)
 end
 
