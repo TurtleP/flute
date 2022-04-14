@@ -41,9 +41,8 @@ function suite:new(name, tests_or_path, exclude)
     self.async = async()
 
     functional.foreach(self.items, function(item, _)
-        self.log:echo("Executing Test '%s':", item:name())
-
         self.async:call(function()
+            self.log:echo("Executing Test '%s':", item:name())
             item:execute(self.log)
         end, nil, function()
             async_pass(self.log, item)
