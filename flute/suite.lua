@@ -51,12 +51,15 @@ function suite:new(name, tests_or_path, exclude)
             async_fail(self.log, item)
         end)
     end)
+
+    self._finish = false
 end
 
 function suite:update()
-    local finished = self.async:update()
-    if finished then
+    local running = self.async:update()
+    if not running and not self._finish then
         print_footer(self.log, self.items)
+        self._finish = true
     end
 end
 
